@@ -1,0 +1,8 @@
+const TimeAgo = () => {
+    return (
+        <>
+        </>
+    )
+}
+
+export default TimeAgo

@@ -1,26 +1,37 @@
 import { useState } from "react"
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { postAdded } from './postsSlice'
+import { selectAllUsers } from "../users/usersSlice"
 
 const AddPostForm = () => {
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
+    const [usersId, setUsersId] = useState('')
+
+    const users = useSelector(selectAllUsers)
 
     const onTitleChange = (e) => setTitle(e.target.value)
     const onContentChange = (e) => setContent(e.target.value)
+    const onAuthorChange = (e) => setUsersId(e.target.value)
 
 
     const dispatch = useDispatch()
     const onSavePostClicked = () => {
         if (title && content) {
             dispatch(
-                postAdded(title, content)
+                postAdded(title, content, usersId)
             )
 
             setTitle('')
             setContent('')
         }
     }
+
+    const canSave  = Boolean(title) && Boolean(content) && Boolean(usersId)
+
+    const usersOptions = users.map((user) => (
+        <option key={user.id} value={user.id}>{user.name}</option> 
+    ))
 
     return (
         <div>
@@ -34,6 +45,11 @@ const AddPostForm = () => {
                     value={title}
                     onChange={onTitleChange}
                 />
+                <label htmlFor="postAuthor">Author</label>
+                <select id="postAuthor" value={usersId} onChange={onAuthorChange}>
+                    <option value=""></option>
+                    {usersOptions}
+                </select>
                 <label htmlFor="postContent">Post Content:</label>
                 <input 
                     type="text"
@@ -42,7 +58,7 @@ const AddPostForm = () => {
                     value={content}
                     onChange={onContentChange}
                 />
-                <button onClick={onSavePostClicked} type="button">Save Post</button>
+                <button disabled={!canSave} onClick={onSavePostClicked} type="button">Save Post</button>
             </form>
         </div>
     )
