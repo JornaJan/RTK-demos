@@ -37,32 +37,11 @@ const postsSlice = createSlice({
     name: 'posts',
     initialState,
     reducers: {
-        postAdded: {
-            reducer: (state, action) => {
-                state.push(action.payload)
-            },
-            prepare: (title, content, userId) => {
-                return {
-                    payload: {
-                        id: nanoid(),
-                        title,
-                        content,
-                        date: new Date().toISOString(),
-                        userId,
-                        reactions: {
-                            thumbsUp: 0,
-                            wow: 0,
-                            heart: 0,
-                            rocket: 0,
-                            coffee: 0
-                        }
-                    }
-                }
-            }
-        },
         reactionAdded: (state, action) => {
             const { postId, reaction } = action.payload
-            const existingPost = state.find(post => post.id === postId)
+            console.log(action)
+            console.log(state)
+            const existingPost = state.posts.find(post => post.id === postId)
             if (existingPost) {
                 existingPost.reactions[reaction]++
             }
@@ -99,11 +78,12 @@ const postsSlice = createSlice({
                 action.meta.arg.userId = Number(action.meta.arg.userId)
                 action.meta.arg.date = new Date().toISOString()
                 action.meta.arg.reactions = {
-                        thumbsUp: 0,
-                        hooray: 0,
-                        heart: 0,
-                        rocket: 0, 
-                        eyes: 0
+
+    thumbsUp: 0,
+hooray: 0,
+    heart: 0,
+    rocket: 0,
+                    eyes: 0
                 }
                 state.posts.push(action.meta.arg)
             })
@@ -111,7 +91,7 @@ const postsSlice = createSlice({
     }
 })
 
-export const { postAdded, reactionAdded } = postsSlice.actions
+export const { reactionAdded } = postsSlice.actions
 
 export const selectAllPosts = (state) => state.posts.posts
 export const getPostsStatus = (state) => state.posts.status
