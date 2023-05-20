@@ -1,33 +1,42 @@
 import { useState } from "react"
 import { useDispatch, useSelector } from 'react-redux'
-import { postAdded } from './postsSlice'
+import { addNewPost } from './postsSlice'
 import { selectAllUsers } from "../users/usersSlice"
 
 const AddPostForm = () => {
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
-    const [usersId, setUsersId] = useState('')
+    const [userId, setUserId] = useState('')
+
+    const [addRequestStatus, setAddRequestStatus] = useState('idle')
 
     const users = useSelector(selectAllUsers)
 
     const onTitleChange = (e) => setTitle(e.target.value)
     const onContentChange = (e) => setContent(e.target.value)
-    const onAuthorChange = (e) => setUsersId(e.target.value)
+    const onAuthorChange = (e) => setUserId(e.target.value)
 
+    const canSave  = [title, content, userId].every(Boolean) && addRequestStatus === 'idle'
 
     const dispatch = useDispatch()
     const onSavePostClicked = () => {
-        if (title && content) {
-            dispatch(
-                postAdded(title, content, usersId)
-            )
+        if (canSave) {
+            try {
+                setAddRequestStatus('pending')
+                dispatch(addNewPost({title, body: content, userId})).unwrap()
 
-            setTitle('')
-            setContent('')
+                setTitle('')
+                setContent('')
+                setUserId('')
+            } catch(err) {
+                console.error('Failed to save the post', err)
+            } finally {
+                setAddRequestStatus('idle')
+            }
         }
     }
 
-    const canSave  = Boolean(title) && Boolean(content) && Boolean(usersId)
+
 
     const usersOptions = users.map((user) => (
         <option key={user.id} value={user.id}>{user.name}</option> 
@@ -46,7 +55,7 @@ const AddPostForm = () => {
                     onChange={onTitleChange}
                 />
                 <label htmlFor="postAuthor">Author</label>
-                <select id="postAuthor" value={usersId} onChange={onAuthorChange}>
+                <select id="postAuthor" value={userId} onChange={onAuthorChange}>
                     <option value=""></option>
                     {usersOptions}
                 </select>
